@@ -9,26 +9,33 @@ class CycloPediaClassPage extends React.Component {
       studentList: [],
       studentCount: 0,
       hideInstructor: false,
+      inputName: "",
+      inputFeedback: "",
     };
   }
 
   componentDidMount = async () => {
     console.log("Component Did Mount");
-    const response = await getRandomUser();
-    console.log(response);
-    this.setState((prevState) => {
-      return {
-        instructor: {
-          name: response.data.first_name + " " + response.data.last_name,
-          email: response.data.email,
-          phone: response.data.phone_number,
-        },
-      };
-    });
+    if (JSON.parse(localStorage.getItem("cyclopediaState"))) {
+      this.setState(JSON.parse(localStorage.getItem("cyclopediaState")));
+    } else {
+      const response = await getRandomUser();
+      console.log(response);
+      this.setState((prevState) => {
+        return {
+          instructor: {
+            name: response.data.first_name + " " + response.data.last_name,
+            email: response.data.email,
+            phone: response.data.phone_number,
+          },
+        };
+      });
+    }
   };
 
   componentDidUpdate() {
     console.log("Component Did Update");
+    localStorage.setItem("cyclopediaState", JSON.stringify(this.state));
   }
 
   componentWillUnmount() {
@@ -68,6 +75,29 @@ class CycloPediaClassPage extends React.Component {
             <br />
           </div>
         )}
+        <div className="p-3">
+          <span className="h4 text-success">Feedback</span>
+          <br />
+          <input
+            type="text"
+            value={this.state.inputName}
+            placeholder="Name.."
+            onChange={(e) => {
+              this.setState({ inputName: e.target.value });
+            }}
+          ></input>{" "}
+          Value : {this.state.inputName}
+          <br />
+          <textarea
+            type="text"
+            value={this.state.inputFeedback}
+            placeholder="Feedback..."
+            onChange={(e) => {
+              this.setState({ inputFeedback: e.target.value });
+            }}
+          ></textarea>{" "}
+          Value : {this.state.inputFeedback}
+        </div>
         <div className="p-3">
           <span className="h4 text-success">Students</span>
           <br />
