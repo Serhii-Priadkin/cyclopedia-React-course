@@ -34,10 +34,31 @@ class CycloPediaClassPage extends React.Component {
     }
   };
 
-  componentDidUpdate() {
+  componentDidUpdate = async (previousProps,previousState)=> {
     console.log("Component Did Update");
     localStorage.setItem("cyclopediaState", JSON.stringify(this.state));
-  }
+    console.log("Old State - "+previousState.studentCount);
+    console.log("New State - "+this.state.studentCount);
+    if(previousState.studentCount < this.state.studentCount){
+        const response=await getRandomUser();
+        this.setState((prevState)=>{
+            return{
+                studentList:[
+                    ...prevState.studentList,{
+                        name:response.data.first_name+" "+response.data.last_name,
+                    }
+                ]
+            }
+        })
+    }
+    else if(previousState.studentCount > this.state.studentCount){
+        this.setState((prevState)=>{
+            return{
+                studentList:[],
+            }
+        })
+    }
+}
 
   componentWillUnmount() {
     console.log("Component Will UnMount");
@@ -77,7 +98,7 @@ class CycloPediaClassPage extends React.Component {
             className={` bi  ${this.state.hideInstructor?"bi-toggle-off" : "bi-toggle-on"}  btn btn-success btn-sm`}
             onClick={this.handletoggleInstructor}
           ></i>
-          {!this.state.hideInstructor ? (
+          {!this.state.hideInstructor && this.state.instructor ? (
             <Instructor instructor={this.state.instructor} />
           ) : null}
         </div>
@@ -122,8 +143,15 @@ class CycloPediaClassPage extends React.Component {
           >
             Remove All Students
           </button>
+
+          {this.state.studentList.map((student,index)=>{
+            return(
+                <div className="text-white" key={index}>-  {student.name}</div>
+            )
+
+          })}
         </div>
-      </div>
+        </div>
     );
   }
 }
