@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Instructor from "./Instructor";
 import { getRandomUser } from "./Utility/api";
 
@@ -12,6 +12,11 @@ const CycloPediaFuncPage = () => {
     };
   });
 
+  const totalRender = useRef(0);
+  const prevStudentCount = useRef(0);
+  const feedbackInputRef = useRef(null);
+
+
   const [inputName, setInputName] = useState(() => {
     return "";
   });
@@ -19,7 +24,15 @@ const CycloPediaFuncPage = () => {
     return "";
   });
 
-  useEffect(() => {});
+  useEffect(() => {
+    // setTotalRender((prevState) => prevState + 1);
+    totalRender.current = totalRender.current + 1;
+    console.log("render" + totalRender.current);
+  });
+
+  useEffect(() => {
+    prevStudentCount.current = state.studentCount;
+  }, [state.studentCount]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -54,9 +67,9 @@ const CycloPediaFuncPage = () => {
         };
       });
     };
-    if (state.studentList.length < state.studentCount) {
+    if (prevStudentCount.current < state.studentCount) {
       getUser();
-    } else if (state.studentList.length > state.studentCount) {
+    } else if (prevStudentCount.current > state.studentCount) {
       setState((prevState) => {
         return { ...prevState, studentList: [] };
       });
@@ -64,10 +77,16 @@ const CycloPediaFuncPage = () => {
   }, [state.studentCount]);
 
   useEffect(() => {
+    prevStudentCount.current = state.studentCount;
+  }, [state.studentCount]);
+
+  useEffect(() => {
     console.log();
   }, [inputName, inputFeedback]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    feedbackInputRef.current.focus();
+  }, []);
 
   //   componentDidUpdate = async (previousProps,previousState)=> {
   //     console.log("Component Did Update");
@@ -140,7 +159,7 @@ const CycloPediaFuncPage = () => {
           <Instructor instructor={state.instructor} />
         ) : null}
       </div>
-
+      <div className="p-3">Total Render : {totalRender.current}</div>
       <div className="p-3">
         <span className="h4 text-success">Feedback</span>
         <br />
@@ -157,6 +176,7 @@ const CycloPediaFuncPage = () => {
         <textarea
           type="text"
           value={inputFeedback}
+          ref={feedbackInputRef}
           placeholder="Feedback..."
           onChange={(e) => {
             setInputFeedback(e.target.value);
